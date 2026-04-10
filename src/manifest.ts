@@ -1,0 +1,225 @@
+import type { PaperclipPluginManifestV1 } from "@paperclipai/plugin-sdk";
+
+const PLUGIN_ID = "paperclip.autoresearch-improver-example";
+const PLUGIN_VERSION = "0.2.0";
+const JOB_KEYS = {
+  optimizerSweep: "optimizer-sweep"
+} as const;
+const TOOL_KEYS = {
+  listOptimizers: "list-optimizers",
+  createIssueFromAcceptedRun: "create-issue-from-accepted-run",
+  createPullRequestFromAcceptedRun: "create-pull-request-from-accepted-run"
+} as const;
+
+const manifest: PaperclipPluginManifestV1 = {
+  id: PLUGIN_ID,
+  apiVersion: 1,
+  version: PLUGIN_VERSION,
+  displayName: "Autoresearch Improver",
+  description: "Run Darwin-Derby style improve-score-ratchet loops against Paperclip project workspaces.",
+  author: "Codex",
+  categories: ["automation", "workspace", "ui"],
+  capabilities: [
+    "companies.read",
+    "projects.read",
+    "project.workspaces.read",
+    "issues.create",
+    "issues.read",
+    "activity.log.write",
+    "plugin.state.read",
+    "plugin.state.write",
+    "metrics.write",
+    "jobs.schedule",
+    "agent.tools.register",
+    "ui.page.register",
+    "ui.dashboardWidget.register",
+    "ui.detailTab.register",
+    "ui.sidebar.register"
+  ],
+  entrypoints: {
+    worker: "./dist/worker.js",
+    ui: "./dist/ui"
+  },
+  instanceConfigSchema: {
+    type: "object",
+    properties: {
+      defaultMutationBudgetSeconds: {
+        type: "number",
+        minimum: 5,
+        maximum: 3600,
+        default: 300
+      },
+      defaultScoreBudgetSeconds: {
+        type: "number",
+        minimum: 5,
+        maximum: 3600,
+        default: 180
+      },
+      defaultGuardrailBudgetSeconds: {
+        type: "number",
+        minimum: 5,
+        maximum: 3600,
+        default: 120
+      },
+      keepTmpDirs: {
+        type: "boolean",
+        default: false
+      },
+      maxOutputChars: {
+        type: "number",
+        minimum: 500,
+        maximum: 50000,
+        default: 8000
+      },
+      sweepLimit: {
+        type: "number",
+        minimum: 1,
+        maximum: 100,
+        default: 10
+      },
+      scoreRepeats: {
+        type: "number",
+        minimum: 1,
+        maximum: 10,
+        default: 3
+      },
+      minimumImprovement: {
+        type: "number",
+        minimum: 0,
+        maximum: 1000000,
+        default: 0
+      },
+      guardrailRepeats: {
+        type: "number",
+        minimum: 1,
+        maximum: 10,
+        default: 1
+      },
+      guardrailAggregator: {
+        type: "string",
+        enum: ["all", "any"],
+        default: "all"
+      },
+      scoreImprovementPolicy: {
+        type: "string",
+        enum: ["threshold", "confidence", "epsilon"],
+        default: "threshold",
+        description: "How to decide if a score improvement is real. threshold: delta > minImprovement. confidence: delta > k×stdDev. epsilon: delta > max(epsilon, noiseFloor)."
+      },
+      confidenceThreshold: {
+        type: "number",
+        minimum: 0.5,
+        maximum: 10,
+        default: 2.0,
+        description: "k multiplier for stdDev in confidence policy."
+      },
+      epsilonValue: {
+        type: "number",
+        minimum: 0,
+        maximum: 1000000,
+        default: 0.01,
+        description: "Minimum meaningful improvement for epsilon policy."
+      },
+      stagnationIssueThreshold: {
+        type: "number",
+        minimum: 1,
+        maximum: 100,
+        default: 5
+      }
+    }
+  },
+  jobs: [
+    {
+      jobKey: JOB_KEYS.optimizerSweep,
+      displayName: "Optimizer Sweep",
+      description: "Runs active optimizers that have auto-run enabled.",
+      schedule: "0 * * * *"
+    }
+  ],
+  tools: [
+    {
+      name: TOOL_KEYS.listOptimizers,
+      displayName: "List project optimizers",
+      description: "Summarize the registered autoresearch loops for a project.",
+      parametersSchema: {
+        type: "object",
+        properties: {
+          projectId: { type: "string" }
+        },
+        required: ["projectId"]
+      }
+    },
+    {
+      name: TOOL_KEYS.createIssueFromAcceptedRun,
+      displayName: "Create issue from accepted optimizer run",
+      description: "Turns the latest accepted run for an optimizer into a Paperclip issue.",
+      parametersSchema: {
+        type: "object",
+        properties: {
+          optimizerId: { type: "string" },
+          titlePrefix: { type: "string" }
+        },
+        required: ["optimizerId"]
+      }
+    },
+    {
+      name: TOOL_KEYS.createPullRequestFromAcceptedRun,
+      displayName: "Create pull request from accepted optimizer run",
+      description: "Creates a branch, commit, and optional PR from the latest applied run for an optimizer.",
+      parametersSchema: {
+        type: "object",
+        properties: {
+          optimizerId: { type: "string" },
+          runId: { type: "string" }
+        },
+        required: ["optimizerId"]
+      }
+    }
+  ],
+  ui: {
+    slots: [
+      {
+        type: "page",
+        id: "optimizer-console-page",
+        displayName: "Autoresearch Console",
+        exportName: "OptimizerPage"
+      },
+      {
+        type: "dashboardWidget",
+        id: "optimizer-overview-widget",
+        displayName: "Optimizer Overview",
+        exportName: "OptimizerDashboardWidget"
+      },
+      {
+        type: "detailTab",
+        id: "optimizer-project-tab",
+        displayName: "Optimizer",
+        exportName: "ProjectOptimizerTab",
+        entityTypes: ["project"]
+      },
+      {
+        type: "projectSidebarItem",
+        id: "optimizer-project-link",
+        displayName: "Optimizer",
+        exportName: "ProjectOptimizerSidebarLink",
+        entityTypes: ["project"]
+      },
+      {
+        type: "detailTab",
+        id: "autopilot-project-tab",
+        displayName: "Autopilot",
+        exportName: "AutopilotProjectTab",
+        entityTypes: ["project"]
+      },
+      {
+        type: "projectSidebarItem",
+        id: "autopilot-project-link",
+        displayName: "Autopilot",
+        exportName: "AutopilotProjectSidebarLink",
+        entityTypes: ["project"]
+      }
+    ]
+  }
+};
+
+export default manifest;
