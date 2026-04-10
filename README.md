@@ -1,5 +1,7 @@
 # Product Autopilot
 
+<!-- HERO IMAGE -->
+<!-- Place hero.png here: a dark terminal-style screenshot showing an active optimization run with score deltas, or an animated loop diagram -->
 
 ![Product Autopilot — Autonomous Code Improvement](images/hero.png)
 
@@ -33,6 +35,8 @@ Define Surface   →   Run Candidates   →   Accept Improvements
 - **Optional PR generation** — turns accepted runs into GitHub PRs automatically
 - **Rich metrics dashboard** — score history, delta trends, run outcomes, and stagnation alerts
 
+<!-- DASHBOARD IMAGE -->
+<!-- Place dashboard.png here: the Autopilot overview widget showing active optimizers, run counts, and score history -->
 
 ![Autopilot Overview Dashboard](images/dashboard.png)
 
@@ -44,6 +48,20 @@ Define Surface   →   Run Candidates   →   Accept Improvements
 
 Ship the gains with confidence — or let Autopilot run autonomously in the background.
 
+---
+> **Tip:** A Paperclip instance and a git workspace are all you need. Optional: Lighthouse CLI (`npm install -g lighthouse`) and ESLint.
+```bash
+git clone https://github.com/Ola-Turmo/paperclip-autoresearch-improver.git && cd paperclip-autoresearch-improver && npm install && npm run build
+pnpm paperclipai plugin install ./path/to/paperclip-autoresearch-improver
+# Restart Paperclip — the plugin appears in your project tabs
+# For npm (once published): pnpm paperclipai plugin install @your-npm-scope/paperclip-autoresearch-improver
+```
+### Creating your first optimizer
+1. Open any project in Paperclip → go to the **Optimizer** tab
+2. Click **New Optimizer** and pick a template (e.g. "Test Suite Ratchet")
+3. Point the **Workspace** at your git project directory
+4. Set **Mutable Paths** to the files to improve (e.g. `src` or `tests`)
+5. Click **Save** — then **Run** to start the first cycle
 ## Built-in templates
 
 Not sure where to start? Pick a template:
