@@ -86,7 +86,7 @@ type FormState = {
 };
 
 const shellExample = `codex exec "Read $PAPERCLIP_OPTIMIZER_BRIEF and improve the selected files only."`;
-const scoreExample = `node -e "console.log(JSON.stringify({ primary: 1, metrics: { testPassRate: 1 }, guardrails: { noRegression: true } }))"`;
+const scoreExample = `node ./scripts/score-json.mjs`;
 
 const pageStyle: CSSProperties = {
   display: "grid",

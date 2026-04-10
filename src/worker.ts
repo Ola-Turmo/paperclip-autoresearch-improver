@@ -311,7 +311,7 @@ const optimizerTemplates: OptimizerTemplate[] = [
       objective: "Improve the selected workspace while preserving build and test stability.",
       mutablePaths: ["src", "tests", "README.md"],
       mutationCommand: "codex exec \"Read $PAPERCLIP_OPTIMIZER_BRIEF and improve the selected files only.\"",
-      scoreCommand: "node ./scripts/score-json.mjs",
+      scoreCommand: "node ./scripts/test-score.mjs",
       scoreDirection: "maximize",
       scoreFormat: "json",
       scoreKey: "primary",
@@ -405,7 +405,7 @@ const optimizerTemplates: OptimizerTemplate[] = [
       objective: "Optimize with a known minimum improvement threshold.",
       mutablePaths: ["src", "server"],
       mutationCommand: "codex exec \"Read $PAPERCLIP_OPTIMIZER_BRIEF and improve the selected files only.\"",
-      scoreCommand: "node ./scripts/perf-score.mjs",
+      scoreCommand: "node ./scripts/quality-score.mjs",
       scoreDirection: "maximize",
       scoreFormat: "json",
       scoreKey: "primary",
@@ -453,7 +453,7 @@ const optimizerTemplates: OptimizerTemplate[] = [
       objective: "Improve the workspace while monitoring for stagnation or scorer degradation.",
       mutablePaths: ["src", "tests"],
       mutationCommand: "codex exec \"Read $PAPERCLIP_OPTIMIZER_BRIEF and improve the selected files only.\"",
-      scoreCommand: "node ./scripts/score-json.mjs",
+      scoreCommand: "node ./scripts/test-score.mjs",
       scoreDirection: "maximize",
       scoreFormat: "json",
       scoreKey: "primary",
@@ -2494,7 +2494,7 @@ async function registerDataHandlers(ctx: PluginContext): Promise<void> {
     const projectId = typeof params.projectId === "string" ? params.projectId : "";
     if (!companyId || !projectId) return [];
     const before = typeof params.cursor === "string" ? params.cursor : undefined;
-    const entities = await listProductProgramRevisionEntities(ctx, companyId, projectId, before);
+    const entities = await listProductProgramRevisionEntities(ctx, companyId, projectId);
     return entities
       .map(asProductProgramRevision)
       .filter((entry) => entry.companyId === companyId)
