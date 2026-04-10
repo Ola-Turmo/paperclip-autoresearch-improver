@@ -1,7 +1,5 @@
 # Product Autopilot
 
-<!-- HERO IMAGE -->
-<!-- Place hero.png here: a dark terminal-style screenshot showing an active optimization run with score deltas, or an animated loop diagram -->
 
 ![Product Autopilot — Autonomous Code Improvement](images/hero.png)
 
@@ -35,8 +33,6 @@ Define Surface   →   Run Candidates   →   Accept Improvements
 - **Optional PR generation** — turns accepted runs into GitHub PRs automatically
 - **Rich metrics dashboard** — score history, delta trends, run outcomes, and stagnation alerts
 
-<!-- DASHBOARD IMAGE -->
-<!-- Place dashboard.png here: the Autopilot overview widget showing active optimizers, run counts, and score history -->
 
 ![Autopilot Overview Dashboard](images/dashboard.png)
 
